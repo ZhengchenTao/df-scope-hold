@@ -7,3 +7,6 @@ build/
 dist/
 release/
 *.spec
+
+# Claude Code 本地缓存
+.claude/
