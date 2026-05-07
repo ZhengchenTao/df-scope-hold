@@ -1,0 +1,81 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag, 例如 v0.1.0（会自动创建 tag 并发布 release）'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve release tag
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') {
+            $t = '${{ inputs.tag }}'
+          } else {
+            $t = $env:GITHUB_REF_NAME
+          }
+          echo "RELEASE_TAG=$t" >> $env:GITHUB_ENV
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build exe
+        run: pyinstaller --onefile --uac-admin --console --name df-scope-hold script.py
+
+      - name: Package release zip
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release | Out-Null
+          Copy-Item dist/df-scope-hold.exe release/
+          Copy-Item config.ini release/
+          Copy-Item README.md release/
+          Compress-Archive -Path release/* -DestinationPath "df-scope-hold-$env:RELEASE_TAG.zip" -Force
+          echo "ASSET_ZIP=df-scope-hold-$env:RELEASE_TAG.zip" >> $env:GITHUB_ENV
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: df-scope-hold-${{ env.RELEASE_TAG }}
+          path: ${{ env.ASSET_ZIP }}
+
+      - name: Extract release notes from CHANGELOG.md
+        shell: pwsh
+        run: |
+          $content = Get-Content CHANGELOG.md -Raw
+          $escaped = [regex]::Escape($env:RELEASE_TAG)
+          $pattern = "(?ms)^## \[$escaped\].*?(?=^## |\Z)"
+          $m = [regex]::Match($content, $pattern)
+          if ($m.Success) {
+            $body = ($m.Value -replace '^## .*\r?\n', '').Trim()
+          } else {
+            $body = "Release $env:RELEASE_TAG"
+          }
+          $date = [DateTime]::UtcNow.ToString('yyyy-MM-dd')
+          $body = "**发布日期**: $date (UTC)`n`n" + $body
+          Set-Content -Path release-notes.md -Value $body -Encoding utf8
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          files: ${{ env.ASSET_ZIP }}
+          body_path: release-notes.md

@@ -1,7 +1,11 @@
 import os
 import sys
-current_dir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(current_dir, "PortablePython", "Lib", "site-packages"))
+
+if getattr(sys, 'frozen', False):
+    # PyInstaller onefile：配置文件应在 exe 同目录，而非 _MEI 临时解压目录
+    current_dir = os.path.dirname(sys.executable)
+else:
+    current_dir = os.path.dirname(os.path.realpath(__file__))
 
 import time
 from pynput import mouse, keyboard
