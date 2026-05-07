@@ -122,3 +122,14 @@ jobs:
           $assetName = [uri]::EscapeDataString($env:ASSET_ZIP)
           Invoke-RestMethod -Method Post -Uri "$baseUrl/releases/$($release.id)/assets?name=$assetName" -Headers $headers -Form @{ attachment = Get-Item $env:ASSET_ZIP } | Out-Null
           Write-Host "已上传 $env:ASSET_ZIP 到 Gitea release"
+
+          # 给同 SHA 打一条 success commit status，覆盖 Gitea Actions 历史残留的 cancelled
+          # 状态（Gitea release 页会沿 tag→commit 把 commit status badge 显示出来）
+          $statusPayload = @{
+            state = "success"
+            context = "release / build (push)"
+            description = "Built and mirrored from GitHub Actions"
+            target_url = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+          } | ConvertTo-Json
+          Invoke-RestMethod -Method Post -Uri "$baseUrl/statuses/$env:GITHUB_SHA" -Headers $headers -ContentType 'application/json' -Body $statusPayload | Out-Null
+          Write-Host "已为 $env:GITHUB_SHA 打 success commit status"

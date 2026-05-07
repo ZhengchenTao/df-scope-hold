@@ -1,0 +1,25 @@
+# 此文件不执行任何实际逻辑，仅用于占位。
+#
+# Why：
+# - Release 流程已迁到 GitHub Actions（见 .github/workflows/release.yml），
+#   构建完成后通过 Gitea API 同步发布到 Gitea Releases
+# - 上一版 Gitea workflow 删除后，Gitea Actions 的 workflow 注册表
+#   不会自动清理，导致 sidebar 仍残留 release.yml 项 + workflow_dispatch
+#   按钮可点但无 runner 匹配
+# - 用一个 noop workflow "接管" 同名 sidebar 项，让手动触发能跑通
+#   并清楚说明 release 流程在 GitHub 那边
+
+name: placeholder (release pipeline lives on GitHub Actions)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain
+        run: |
+          echo "本仓库的 release 流程在 GitHub Actions 上执行。"
+          echo "构建完成后通过 Gitea API 同步到 Gitea Releases。"
+          echo "本 workflow 仅为占位，不构建任何产物。"
