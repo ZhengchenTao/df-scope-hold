@@ -79,3 +79,46 @@ jobs:
           tag_name: ${{ env.RELEASE_TAG }}
           files: ${{ env.ASSET_ZIP }}
           body_path: release-notes.md
+
+      - name: Mirror release to Gitea
+        shell: pwsh
+        env:
+          GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+          GITEA_URL: https://git.zhengchentao.win
+          GITEA_OWNER: zhengchen.tao
+          GITEA_REPO: df-scope-hold
+        run: |
+          if (-not $env:GITEA_TOKEN) {
+            Write-Warning "secrets.GITEA_TOKEN 未配置，跳过 Gitea release 同步"
+            exit 0
+          }
+
+          $headers = @{ Authorization = "token $env:GITEA_TOKEN" }
+          $baseUrl = "$env:GITEA_URL/api/v1/repos/$env:GITEA_OWNER/$env:GITEA_REPO"
+
+          # 同 tag 已存在则先删（含其 assets），允许 re-run 覆盖发布
+          try {
+            $existing = Invoke-RestMethod -Method Get -Uri "$baseUrl/releases/tags/$env:RELEASE_TAG" -Headers $headers -ErrorAction Stop
+            Write-Host "覆盖已存在的 Gitea release id=$($existing.id)"
+            Invoke-RestMethod -Method Delete -Uri "$baseUrl/releases/$($existing.id)" -Headers $headers | Out-Null
+          } catch {
+            if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw }
+          }
+
+          # 创建 release。tag 不存在时 Gitea 按 target_commitish 自动建 tag
+          $bodyContent = Get-Content release-notes.md -Raw
+          $payload = @{
+            tag_name = $env:RELEASE_TAG
+            name = $env:RELEASE_TAG
+            body = $bodyContent
+            draft = $false
+            prerelease = $false
+            target_commitish = $env:GITHUB_SHA
+          } | ConvertTo-Json
+          $release = Invoke-RestMethod -Method Post -Uri "$baseUrl/releases" -Headers $headers -ContentType 'application/json' -Body $payload
+          Write-Host "已创建 Gitea release id=$($release.id)"
+
+          # 上传 zip 资产
+          $assetName = [uri]::EscapeDataString($env:ASSET_ZIP)
+          Invoke-RestMethod -Method Post -Uri "$baseUrl/releases/$($release.id)/assets?name=$assetName" -Headers $headers -Form @{ attachment = Get-Item $env:ASSET_ZIP } | Out-Null
+          Write-Host "已上传 $env:ASSET_ZIP 到 Gitea release"

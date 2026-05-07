@@ -15,7 +15,7 @@
 - 进程门控：仅在目标游戏进程运行时激活监听，游戏关闭自动停止，重启自动恢复
 - `config.ini` 配置文件，可自定义按键、按键延迟（毫秒）、目标进程名
 - Windows 单 exe 分发，内嵌 UAC manifest，双击自动请求管理员权限
-- GitHub / Gitea Actions 自动构建并发布 release zip（含 exe + 默认 config.ini）
+- GitHub Actions 自动构建 Windows exe，构建完成后同时发布到 GitHub Releases 与 Gitea Releases，方便不同网络环境下载（zip 包含 exe + 默认 config.ini + README）
 
 ### Notes
 - 游戏客户端通常以管理员权限运行，本工具必须以同等权限运行才能检测到游戏进程

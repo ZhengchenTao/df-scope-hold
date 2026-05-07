@@ -18,7 +18,12 @@
 
 ### 2. 下载并解压
 
-到本仓库 [Releases](../../releases) 页面下载最新的 `df-scope-hold-vX.X.X.zip`，解压到任意目录，里面包含：
+下载最新的 `df-scope-hold-vX.X.X.zip`，解压到任意目录。两个下载渠道任选其一：
+
+- **Gitea**（国内推荐）：<https://git.zhengchentao.win/zhengchen.tao/df-scope-hold/releases>
+- **GitHub**：<https://github.com/ZhengchenTao/df-scope-hold/releases>
+
+zip 内含：
 
 - `df-scope-hold.exe`：主程序（已内嵌管理员权限 manifest，双击即弹 UAC）
 - `config.ini`：默认配置
