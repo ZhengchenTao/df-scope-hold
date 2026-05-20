@@ -20,7 +20,7 @@
 
 ### 2. 下载并解压
 
-到 [Gitea Releases](https://git.zhengchentao.win/zhengchen.tao/df-scope-hold/releases) 下载最新的 `df-scope-hold-vX.X.X.zip`，解压到任意目录。
+到 [GitHub Releases](https://github.com/ZhengchenTao/df-scope-hold/releases) 下载最新的 `df-scope-hold-vX.X.X.zip`，解压到任意目录。国内访问慢的话可走 [Gitea Releases](https://git.zhengchentao.win/zhengchen.tao/df-scope-hold/releases)（GitHub 同 tag 自动同步过来的镜像）。
 
 zip 内含：
 
@@ -75,7 +75,7 @@ pip install -r requirements.txt
 pyinstaller --onefile --uac-admin --console --name df-scope-hold script.py
 ```
 
-产物在 `dist/df-scope-hold.exe`。仓库已配置 GitHub Actions（windows-latest 跑 PyInstaller，详见 `.github/workflows/release.yml`），推 `v*` tag 后自动构建，再通过 Gitea API 同步发布到 [Gitea Releases](https://git.zhengchentao.win/zhengchen.tao/df-scope-hold/releases)，无需本地操作。
+产物在 `dist/df-scope-hold.exe`。仓库已配置 GitHub Actions（windows-latest 跑 PyInstaller，详见 `.github/workflows/release.yml`），推 `v*` tag 后自动构建并发布到 [GitHub Releases](https://github.com/ZhengchenTao/df-scope-hold/releases)，同时通过 Gitea API 把 zip 镜像到 [Gitea Releases](https://git.zhengchentao.win/zhengchen.tao/df-scope-hold/releases)，无需本地操作。
 
 ## 免责声明
 

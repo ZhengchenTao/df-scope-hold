@@ -22,7 +22,7 @@ with the game's scope state.
 
 1. **Bind "hold breath" in-game** to a key that does not conflict with other
    actions (e.g. `F12`).
-2. **Download** the latest `df-scope-hold-vX.X.X.zip` from [Gitea Releases](https://git.zhengchentao.win/zhengchen.tao/df-scope-hold/releases) and unzip anywhere.
+2. **Download** the latest `df-scope-hold-vX.X.X.zip` from [GitHub Releases](https://github.com/ZhengchenTao/df-scope-hold/releases) and unzip anywhere. If GitHub is slow in your region, a mirror is available at [Gitea Releases](https://git.zhengchentao.win/zhengchen.tao/df-scope-hold/releases) (auto-synced from each GitHub release).
 3. **Edit `config.ini`** so `key` matches the in-game binding.
 4. **Run `df-scope-hold.exe`**. UAC will prompt for admin privileges — accept,
    as the anti-cheat-protected game process is otherwise undetectable.
@@ -60,8 +60,9 @@ pyinstaller --onefile --uac-admin --console --name df-scope-hold script.py
 ```
 
 Output at `dist/df-scope-hold.exe`. GitHub Actions builds on `windows-latest`
-(see `.github/workflows/release.yml`) when you push a `v*` tag, then syncs
-the artifact to [Gitea Releases](https://git.zhengchentao.win/zhengchen.tao/df-scope-hold/releases)
+(see `.github/workflows/release.yml`) when you push a `v*` tag, publishes the
+zip to [GitHub Releases](https://github.com/ZhengchenTao/df-scope-hold/releases),
+and mirrors it to [Gitea Releases](https://git.zhengchentao.win/zhengchen.tao/df-scope-hold/releases)
 via the Gitea API — no local build needed.
 
 ## Disclaimer
