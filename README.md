@@ -26,7 +26,7 @@ zip 内含：
 
 - `df-scope-hold.exe`：主程序（已内嵌管理员权限 manifest，双击即弹 UAC）
 - `config.ini`：默认配置
-- `README.md`：本说明
+- `README.md` / `README.en.md`：中英两版说明
 
 ### 3. 修改配置文件
 
