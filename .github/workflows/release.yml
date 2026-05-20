@@ -48,6 +48,7 @@ jobs:
           Copy-Item dist/df-scope-hold.exe release/
           Copy-Item config.ini release/
           Copy-Item README.md release/
+          if (Test-Path README.en.md) { Copy-Item README.en.md release/ }
           Compress-Archive -Path release/* -DestinationPath "df-scope-hold-$env:RELEASE_TAG.zip" -Force
           echo "ASSET_ZIP=df-scope-hold-$env:RELEASE_TAG.zip" >> $env:GITHUB_ENV
 
