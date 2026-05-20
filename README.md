@@ -1,5 +1,7 @@
 # df-scope-hold
 
+简体中文 | [English](README.en.md)
+
 三角洲行动（Delta Force）开镜自动屏息小工具——按住鼠标右键时自动按下指定按键（默认 `F12`），松开时释放。让你只用右键瞄准就能稳枪，不必再额外按一个键。
 
 ## 工作原理
@@ -18,10 +20,7 @@
 
 ### 2. 下载并解压
 
-下载最新的 `df-scope-hold-vX.X.X.zip`，解压到任意目录。两个下载渠道任选其一：
-
-- **Gitea**（国内推荐）：<https://git.zhengchentao.win/zhengchen.tao/df-scope-hold/releases>
-- **GitHub**：<https://github.com/ZhengchenTao/df-scope-hold/releases>
+到 [Gitea Releases](https://git.zhengchentao.win/zhengchen.tao/df-scope-hold/releases) 下载最新的 `df-scope-hold-vX.X.X.zip`，解压到任意目录。
 
 zip 内含：
 
@@ -76,7 +75,7 @@ pip install -r requirements.txt
 pyinstaller --onefile --uac-admin --console --name df-scope-hold script.py
 ```
 
-产物在 `dist/df-scope-hold.exe`。仓库已配置 GitHub / Gitea Actions，推 `v*` tag 后自动构建并发布到 Releases，无需本地操作。
+产物在 `dist/df-scope-hold.exe`。仓库已配置 GitHub Actions（windows-latest 跑 PyInstaller，详见 `.github/workflows/release.yml`），推 `v*` tag 后自动构建，再通过 Gitea API 同步发布到 [Gitea Releases](https://git.zhengchentao.win/zhengchen.tao/df-scope-hold/releases)，无需本地操作。
 
 ## 免责声明
 
