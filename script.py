@@ -16,11 +16,13 @@ import psutil
 # 全局变量
 target_key = Key.shift
 delay_press_ms = 10
+laser_key = None
+laser_hold_ms = 10
 key_pressed = False
 listener = None
 keyboard_controller = keyboard.Controller()
 program_name = ""
-exit_flag = False 
+exit_flag = False
 
 def is_program_running(program_name):
     """检查程序是否运行（不区分大小写）"""
@@ -39,7 +41,9 @@ def read_config():
     return {
         'key': config.get('config', 'key'),
         'delay_press': config.getint('config', 'delay_press'),
-        'program_running': config.get('config', 'program_running')
+        'program_running': config.get('config', 'program_running'),
+        'laser_key': config.get('config', 'laser_key', fallback='').strip(),
+        'laser_hold': config.getint('config', 'laser_hold', fallback=10)
     }
 
 def get_key(key_name: str):
@@ -52,18 +56,30 @@ def get_key(key_name: str):
         else:
             raise ValueError(f"无效按键名称: {key_name}")
 
+def tap_laser():
+    """点按一次激光/手电键（开/关激光）"""
+    if laser_key is None:
+        return
+    keyboard_controller.press(laser_key)
+    time.sleep(laser_hold_ms / 1000)
+    keyboard_controller.release(laser_key)
+
 def on_click(x, y, button, pressed):
     """鼠标点击回调"""
     global key_pressed
     if button == mouse.Button.right:
         if pressed:
+            # 先开激光，再开镜，吃上激光开镜速度加成
+            tap_laser()
             time.sleep(delay_press_ms / 1000)
             keyboard_controller.press(target_key)
             key_pressed = True
         else:
+            # 先松开镜，再关激光
             if key_pressed:
                 keyboard_controller.release(target_key)
                 key_pressed = False
+            tap_laser()
 
 def init_listener():
     """初始化监听器"""
@@ -118,7 +134,7 @@ def main_loop():
                 wait_for_program()
 
 def main():
-    global target_key, delay_press_ms, program_name
+    global target_key, delay_press_ms, laser_key, laser_hold_ms, program_name
     args = read_config()
     program_name = args['program_running']
 
@@ -130,10 +146,23 @@ def main():
 
     delay_press_ms = args['delay_press']
 
+    if args['laser_key']:
+        try:
+            laser_key = get_key(args['laser_key'])
+        except ValueError as e:
+            print(f"错误: 激光键配置无效 - {e}")
+            return
+        laser_hold_ms = args['laser_hold']
+
     key_type = "特殊键" if isinstance(target_key, Key) else "字符键"
     print(f"\n当前配置：")
     print(f"  模拟按键: {target_key} ({key_type})")
     print(f"  按下延迟: {delay_press_ms}ms")
+    if laser_key is not None:
+        laser_type = "特殊键" if isinstance(laser_key, Key) else "字符键"
+        print(f"  激光按键: {laser_key} ({laser_type})，按一下时长 {laser_hold_ms}ms")
+    else:
+        print(f"  激光按键: 未启用")
     print(f"  当前监控程序: {program_name}")
     # print("持续运行模式已启用，程序关闭后会自动等待重启")
     print("-" * 40)
