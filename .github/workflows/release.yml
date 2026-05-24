@@ -39,7 +39,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Build exe
-        run: pyinstaller --onefile --uac-admin --console --name df-scope-hold script.py
+        run: pyinstaller --onefile --uac-admin --console --name df-scope-hold --icon assets/icon.ico script.py
 
       - name: Package release zip
         shell: pwsh
