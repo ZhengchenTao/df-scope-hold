@@ -1,0 +1,88 @@
+# df-scope-hold
+
+[English](README.md) | 简体中文
+
+三角洲行动（Delta Force）开镜自动屏息小工具——按住鼠标右键时自动按下指定按键（默认 `F12`），松开时释放。让你只用右键瞄准就能稳枪，不必再额外按一个键。
+
+## 工作原理
+
+监听鼠标右键事件，在右键按下时模拟键盘按下「屏息」键、右键松开时释放。脚本通过进程名识别游戏，只有游戏在运行时才激活监听，游戏关闭自动停止，重新进入会自动恢复。
+
+> **仅支持「按住开镜」模式**：脚本依赖鼠标右键的按下/松开事件触发屏息键的按下/释放，游戏内的开镜方式必须设为「按住」而不是「切换/按键开镜」。否则松开右键时屏息会被释放，但游戏仍处于开镜状态，行为不一致。
+
+纯本地按键映射，等价于支持宏的游戏鼠标硬件功能；不读写游戏内存、不修改任何游戏文件、不与游戏服务器通信。
+
+## 使用方法
+
+### 1. 游戏内绑定屏息键
+
+打开三角洲行动设置，把「屏息」绑定到一个不会和其他操作冲突的按键，例如 `F12`。记住这个按键。
+
+### 2. 下载并解压
+
+到 [GitHub Releases](https://github.com/ZhengchenTao/df-scope-hold/releases) 下载最新的 `df-scope-hold-vX.X.X.zip`，解压到任意目录。国内访问慢的话可走 [Gitea Releases](https://git.zhengchentao.win/zhengchen.tao/df-scope-hold/releases)（GitHub 同 tag 自动同步过来的镜像）。
+
+zip 内含：
+
+- `df-scope-hold.exe`：主程序（已内嵌管理员权限 manifest，双击即弹 UAC）
+- `config.ini`：默认配置
+- `README.md` / `README.zh-CN.md`：中英两版说明
+
+### 3. 修改配置文件
+
+打开同目录下的 `config.ini`，按需调整：
+
+```ini
+[config]
+key = f12                                              ; 与游戏内屏息绑定保持一致
+delay_press = 5                                        ; 右键按下到模拟按键的延迟（毫秒）
+program_running = DeltaForceClient-Win64-Shipping.exe  ; 游戏进程名（区分大小写）
+```
+
+### 4. 运行
+
+双击 `df-scope-hold.exe`，Windows 会弹出 UAC 提示申请管理员权限，**必须允许**。游戏客户端带反作弊保护通常以管理员权限运行，普通权限的进程无法检测到游戏进程。
+
+启动后会在命令行窗口提示当前配置并等待游戏启动，游戏运行起来后开始监听，按 `Ctrl+C` 退出。
+
+## 配置说明
+
+| 字段 | 含义 | 取值示例 |
+|---|---|---|
+| `key` | 模拟的按键。普通字符直接写（`a`、`1`），系统功能键用 [pynput](https://pynput.readthedocs.io/) 的名称（`shift`、`ctrl`、`f12` 等） | `f12` |
+| `delay_press` | 右键按下后等待多少毫秒再模拟按键。游戏场景建议 5–20ms，过低可能被游戏判定为指令冲突 | `5` |
+| `program_running` | 游戏进程名（任务管理器里看到的 `.exe` 全名，区分大小写） | `DeltaForceClient-Win64-Shipping.exe` |
+
+## 运行环境
+
+Windows 单 exe 分发（约 10MB），由 PyInstaller 把 Python 解释器与依赖（`pynput`、`psutil`）一起打包进可执行文件，**用户无需安装任何 Python 环境**。
+
+仅在 Windows 上验证过（三角洲行动客户端为 Windows 独占）。
+
+## 从源码运行（开发者）
+
+```bash
+pip install -r requirements.txt
+python script.py
+```
+
+需要 Python 3.10+。日常使用直接下载 release 即可，无需自行构建。
+
+## 自行构建
+
+```bash
+pip install -r requirements.txt
+pyinstaller --onefile --uac-admin --console --name df-scope-hold script.py
+```
+
+产物在 `dist/df-scope-hold.exe`。仓库已配置 GitHub Actions（windows-latest 跑 PyInstaller，详见 `.github/workflows/release.yml`），推 `v*` tag 后自动构建并发布到 [GitHub Releases](https://github.com/ZhengchenTao/df-scope-hold/releases)，同时通过 Gitea API 把 zip 镜像到 [Gitea Releases](https://git.zhengchentao.win/zhengchen.tao/df-scope-hold/releases)，无需本地操作。
+
+## 免责声明
+
+- 本脚本是纯本地的鼠标→键盘映射工具，原理与游戏鼠标厂商提供的宏功能完全一致
+- 但游戏厂商对第三方输入工具的政策可能变化，**使用本脚本所产生的任何后果（包括但不限于封号）由使用者自行承担**
+- 仅供个人自用与学习交流，请勿用于排位、赛事等竞技场景
+
+## License
+
+MIT
